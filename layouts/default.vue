@@ -29,6 +29,6 @@ body {
 }
 
 body {
-    @apply bg-white dark:bg-gray-800 text-gray-800 dark:text-white
+    @apply bg-white dark:bg-gray-900 text-gray-800 dark:text-white
 }
 </style>
