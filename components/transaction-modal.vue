@@ -5,7 +5,7 @@
                 Add Transaction
             </template>
 
-            <UForm :state="state" :schema="schema" ref="form" @submit.prevent="save">
+            <UForm :state="state" :schema="schema" ref="form" @submit="save">
                 <UFormGroup :required="true" label="Transaction Type" name="type" class="mb-4">
                     <USelect placeholder="Select the Transaction Type" :options="types" v-model="state.type" />
                 </UFormGroup>
@@ -15,7 +15,7 @@
                 </UFormGroup>
 
                 <UFormGroup :required="true" label="Transaction date" name="created_at" class="mb-4">
-                    <UInput type="date" icon="i-heroicons-calendar-days-20-solid" v-model="created_at" />
+                    <UInput type="date" icon="i-heroicons-calendar-days-20-solid" v-model="state.created_at" />
                 </UFormGroup>
 
                 <UFormGroup label="Description" hint="Optional" name="description" class="mb-4">
@@ -27,7 +27,7 @@
                     <USelect placeholder=" Select the Category" :options="categories" v-model="state.category" />
                 </UFormGroup>
 
-                <UButton type="submit" color="teal" variant="solid" label="Save" />
+                <UButton type="submit" color="teal" variant="solid" label="Save" :loading="isLoading" />
             </UForm>
         </UCard>
     </UModal>
@@ -36,63 +36,97 @@
 <script setup>
 import { z } from 'zod';
 import { categories, types } from '~/constants';
+
 const props = defineProps({
-    modelValue: Boolean
-})
-const emit = defineEmits(['update:modelValue'])
+    modelValue: Boolean,
+    transaction: {
+        type: Object,
+        required: false
+    }
+});
+const emit = defineEmits(['update:modelValue', 'saved']);
 
 const defaultSchema = z.object({
     created_at: z.string(),
     description: z.string().optional(),
-    amount: z.number().positive()
-})
+    amount: z.number().positive('Amount needs to be more than 0')
+});
 
 const incomeSchema = z.object({
     type: z.literal('Income')
-})
+});
 const expenseSchema = z.object({
     type: z.literal('Expense'),
     category: z.enum(categories)
-})
+});
 const investmentSchema = z.object({
     type: z.literal('Investment')
-})
+});
 const savingSchema = z.object({
     type: z.literal('Saving')
-})
-
+});
 
 const schema = z.intersection(
     z.discriminatedUnion('type', [incomeSchema, expenseSchema, investmentSchema, savingSchema]),
     defaultSchema
-)
+);
 
-const form = ref()
+const form = ref();
+const isLoading = ref(false);
+const supabase = useSupabaseClient();
+const toast = useToast();
 
 const save = async () => {
-    if (form.value.error.length) return
-}
+    if (!form.value || form.value.error?.length) return;
+
+    isLoading.value = true;
+    try {
+        const { error } = await supabase.from('transactions')
+            .upsert({ ...state.value });
+
+        if (!error) {
+            toast.add({
+                title: 'Transaction saved!',
+                icon: 'i-heroicons-check-circle',
+                color: 'green'
+            });
+            isOpen.value = false;
+            emit('saved');
+            return;
+        }
+
+        throw error;
+    } catch (e) {
+        toast.add({
+            title: 'Oops, transaction not saved',
+            icon: 'i-heroicons-exclamation-circle',
+            description: e.message,
+            color: 'red'
+        });
+    } finally {
+        isLoading.value = false;
+    }
+};
+
 const initialState = ref({
     type: undefined,
     amount: 0,
     created_at: undefined,
     description: undefined,
     category: undefined
-})
-const state = ref({
-    ...initialState
-})
+});
+const state = ref({ ...initialState.value });
 
 const resetForm = () => {
-    Object.assign(state.value, initialState)
-    form.value.clear()
-}
+    Object.assign(state.value, initialState.value);
+    if (form.value) form.value.clear();
+};
 
 const isOpen = computed({
     get: () => props.modelValue,
     set: (value) => {
-        if (!value) resetForm()
-        emit('update:modelValue', value)
+        if (!value) resetForm();
+        emit('update:modelValue', value);
     }
-})
+});
 </script>
