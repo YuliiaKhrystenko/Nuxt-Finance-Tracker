@@ -62,6 +62,7 @@ const deleteTransaction = async () => {
         toast.add({
             title: 'Something went wrong...',
             icon: 'i-heroicons-exclamation-circle',
+            description: error.message,
             color: 'red'
         })
     } finally {
