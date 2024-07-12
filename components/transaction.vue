@@ -44,7 +44,7 @@ const iconColor = computed(
 const { currency } = useCurrency(props.transaction.amount)
 
 const isLoading = ref(false)
-const toast = useToast()
+const { toastSuccess, toastError } = useAppToast()
 const supabase = useSupabaseClient()
 
 const deleteTransaction = async () => {
@@ -52,18 +52,14 @@ const deleteTransaction = async () => {
 
     try {
         await supabase.from('transactions').delete().eq('id', props.transaction.id)
-        toast.add({
-            title: 'Transaction sucessfully deleted',
-            icon: 'i-heroicons-check-circle',
-            color: 'teal'
+        toastSuccess({
+            title: 'Transaction sucessfully deleted'
         })
         emit('deleted', props.transaction.id)
     } catch (error) {
-        toast.add({
-            title: 'Something went wrong...',
-            icon: 'i-heroicons-exclamation-circle',
-            description: error.message,
-            color: 'red'
+        toastError({
+            title: 'Oops, something went wrong...',
+            description: error.message
         })
     } finally {
         isLoading.value = false
