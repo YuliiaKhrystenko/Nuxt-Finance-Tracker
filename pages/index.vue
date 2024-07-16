@@ -11,8 +11,9 @@
     <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 sm:gap-16 mb-10">
         <Trend color="green" title="Income" :amount="incomeTotal" :last-amount="prevIncomeTotal" :loading="pending" />
         <Trend color="red" title="Expense" :amount="expenseTotal" :last-amount="prevExpenseTotal" :loading="pending" />
-        <Trend color="green" title="Investing" :amount="4000" :last-amount="3000" :loading="pending" />
-        <Trend color="red" title="Saving" :amount="4000" :last-amount="4100" :loading="pending" />
+        <Trend color="green" title="Investment" :amount="investmentTotal" :last-amount="prevInvestmentTotal"
+            :loading="pending" />
+        <Trend color="red" title="Saving" :amount="savingTotal" :last-amount="prevSavingTotal" :loading="pending" />
     </section>
 
     <section class="flex justify-between mb-10">
@@ -33,7 +34,7 @@
         <div v-for="(transactionsOnDay, date) in byDate" :key="date" class="mb-10">
             <DailyTransactionSummary :date="date" :transactions="transactionsOnDay" />
             <Transaction v-for="transaction in transactionsOnDay" :key="transaction.id" :transaction="transaction"
-                @deleted="refresh()" />
+                @deleted="refresh()" @edited="refresh()" />
         </div>
     </section>
     <section v-else>
@@ -43,7 +44,10 @@
 
 <script setup>
 import { transactionViewOptions } from '~/constants';
-const selectedView = ref(transactionViewOptions[1])
+
+const user = useSupabaseUser()
+
+const selectedView = ref(user.value.user_metadata?.transaction_view ?? transactionViewOptions[1])
 const isOpen = ref(false)
 
 const { current, previous } = useSelectedTimePeriod(selectedView)
@@ -53,6 +57,8 @@ const { pending, refresh, transactions: {
     expenseCount,
     incomeTotal,
     expenseTotal,
+    investmentTotal,
+    savingTotal,
     grouped: {
         byDate
     }
@@ -61,6 +67,8 @@ const { pending, refresh, transactions: {
 const { refresh: refreshPrevious, transactions: {
     incomeTotal: prevIncomeTotal,
     expenseTotal: prevExpenseTotal,
+    investmentTotal: prevInvestmentTotal,
+    savingTotal: prevSavingTotal
 } } = useFetchTransactions(previous)
 await Promise.all([refresh(), refreshPrevious()])
 </script>

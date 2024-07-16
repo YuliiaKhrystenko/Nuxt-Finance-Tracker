@@ -9,6 +9,12 @@ export const useFetchTransactions = (period) => {
   const expense = computed(() =>
     transactions.value.filter((t) => t.type === "Expense")
   );
+  const investment = computed(() =>
+    transactions.value.filter((t) => t.type === "Investment")
+  );
+  const saving = computed(() =>
+    transactions.value.filter((t) => t.type === "Saving")
+  );
   const incomeCount = computed(() => income.value.length);
   const expenseCount = computed(() => expense.value.length);
   const incomeTotal = computed(() =>
@@ -16,6 +22,12 @@ export const useFetchTransactions = (period) => {
   );
   const expenseTotal = computed(() =>
     expense.value.reduce((sum, transaction) => sum + transaction.amount, 0)
+  );
+  const investmentTotal = computed(() =>
+    investment.value.reduce((sum, transaction) => sum + transaction.amount, 0)
+  );
+  const savingTotal = computed(() =>
+    saving.value.reduce((sum, transaction) => sum + transaction.amount, 0)
   );
 
   const fetchTransactions = async () => {
@@ -47,7 +59,7 @@ export const useFetchTransactions = (period) => {
     let grouped = {};
 
     for (const transaction of transactions.value) {
-      const date = new Date(transaction.created_at).toISOString().split("T")[0];
+      const date = transaction.created_at.split("T")[0];
 
       if (!grouped[date]) {
         grouped[date] = [];
@@ -77,6 +89,8 @@ export const useFetchTransactions = (period) => {
       expenseCount,
       incomeTotal,
       expenseTotal,
+      investmentTotal,
+      savingTotal,
     },
     refresh,
     pending,

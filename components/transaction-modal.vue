@@ -2,12 +2,13 @@
     <UModal v-model="isOpen">
         <UCard>
             <template #header>
-                Add Transaction
+                {{ isEdititng ? 'Edit' : 'Add' }} Transaction
             </template>
 
             <UForm :state="state" :schema="schema" ref="form" @submit="save">
                 <UFormGroup :required="true" label="Transaction Type" name="type" class="mb-4">
-                    <USelect placeholder="Select the Transaction Type" :options="types" v-model="state.type" />
+                    <USelect :disabled="isEdititng" placeholder="Select the Transaction Type" :options="types"
+                        v-model="state.type" />
                 </UFormGroup>
 
                 <UFormGroup :required="true" label="Amount" name="amount" class="mb-4">
@@ -44,6 +45,8 @@ const props = defineProps({
         required: false
     }
 });
+
+const isEdititng = computed(() => !!props.transaction)
 const emit = defineEmits(['update:modelValue', 'saved']);
 
 const defaultSchema = z.object({
@@ -82,7 +85,10 @@ const save = async () => {
     isLoading.value = true;
     try {
         const { error } = await supabase.from('transactions')
-            .upsert({ ...state.value });
+            .upsert({
+                ...state.value,
+                id: props.transaction?.id
+            });
 
         if (!error) {
             toastSuccess({
@@ -96,7 +102,7 @@ const save = async () => {
         throw error;
     } catch (e) {
         toastError({
-            title: 'Oops, transaction not saved',
+            title: 'Oops, transaction not saved...',
             description: e.message
         });
     } finally {
@@ -104,17 +110,23 @@ const save = async () => {
     }
 };
 
-const initialState = ref({
+const initialState = isEdititng.value ? {
+    type: props.transaction.type,
+    amount: props.transaction.amount,
+    created_at: props.transaction.created_at.split('T')[0],
+    description: props.transaction.description,
+    category: props.transaction.category
+} : {
     type: undefined,
     amount: 0,
     created_at: undefined,
     description: undefined,
     category: undefined
-});
-const state = ref({ ...initialState.value });
+};
+const state = ref({ ...initialState });
 
 const resetForm = () => {
-    Object.assign(state.value, initialState.value);
+    Object.assign(state.value, initialState);
     if (form.value) form.value.clear();
 };
 

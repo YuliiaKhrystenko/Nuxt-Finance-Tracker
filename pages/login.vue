@@ -52,7 +52,7 @@ const handleLogin = async () => {
 
         if (error) {
             toastError({
-                title: 'Error authenticating'
+                title: 'Error authenticating...'
             })
         } else {
             success.value = true
