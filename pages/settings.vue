@@ -10,6 +10,11 @@
 <script setup>
 const links = [
     {
+        label: 'Go Home Page',
+        to: '/',
+        icon: 'i-heroicons-arrow-left'
+    },
+    {
         label: 'Profile',
         to: '/settings/profile'
     },

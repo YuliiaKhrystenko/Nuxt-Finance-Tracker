@@ -8,7 +8,7 @@
             </div>
 
             <div>
-                <UBadge color="teal" variant="soft" v-if="transaction.category">{{ transaction.category }}</UBadge>
+                <UBadge color="cyan" variant="soft" v-if="transaction.category">{{ transaction.category }}</UBadge>
             </div>
         </div>
 

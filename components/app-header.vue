@@ -6,7 +6,10 @@
         <div>
             <UDropdown :items="items" :ui="{ item: { disabled: 'cursor-text select-text' }, width: 'w-64' }"
                 v-if="user">
-                <UAvatar :src="url" alt="Avatar" />
+                <div class="flex flex-row justify-center items-center">
+                    <UAvatar :src="url" alt="Avatar" />
+                    <UButton color="white" variant="ghost" size="xl" trailing-icon="i-heroicons-bars-3"></UButton>
+                </div>
 
                 <template #account="{ item }">
                     <div class="text-left">

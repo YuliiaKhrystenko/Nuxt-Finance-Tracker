@@ -27,8 +27,9 @@
                     v-if="state.type === 'Expense'">
                     <USelect placeholder=" Select the Category" :options="categories" v-model="state.category" />
                 </UFormGroup>
-
-                <UButton type="submit" color="teal" variant="solid" label="Save" :loading="isLoading" />
+                <div class="flex justify-center">
+                    <UButton type="submit" color="cyan" variant="solid" label="Save" :loading="isLoading" />
+                </div>
             </UForm>
         </UCard>
     </UModal>
