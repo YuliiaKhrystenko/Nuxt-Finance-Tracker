@@ -6,7 +6,6 @@ export const useRedirectIfAuthenticated = (url = "/") => {
     (user) => {
       if (user) {
         return navigateTo(url);
-        console.log("You're logged in to your account!");
       }
     },
     { immediate: true }
