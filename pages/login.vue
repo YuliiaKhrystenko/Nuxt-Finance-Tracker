@@ -14,7 +14,6 @@
                     Continue
                 </UButton>
             </div>
-
         </form>
     </UCard>
     <UCard v-else>
@@ -36,7 +35,7 @@ const email = ref('')
 const pending = ref(false)
 const { toastError } = useAppToast()
 const supabase = useSupabaseClient()
-const redirectUrl = useRuntimeConfig().public.baseUrl
+const redirectUrl = useRuntimeConfig().public.baseUrl + '/confirm';
 
 useRedirectIfAuthenticated()
 
@@ -47,7 +46,7 @@ const handleLogin = async () => {
         const { error } = await supabase.auth.signInWithOtp({
             email: email.value,
             options: {
-                emailRedirectTo: `${redirectUrl}/confirm`
+                emailRedirectTo: redirectUrl
             }
         })
 
